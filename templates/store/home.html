@@ -50,10 +50,17 @@
 
     .hero p { color: rgba(255,255,255,0.8); font-size: 1.15rem; max-width: 500px; }
 
-    .hero-emoji {
-        font-size: clamp(5rem, 15vw, 10rem);
-        line-height: 1;
+    .hero-img-wrap {
         animation: float 3s ease-in-out infinite;
+        filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));
+    }
+
+    .hero-img-wrap img {
+        width: 100%;
+        max-width: 460px;
+        border-radius: 28px;
+        object-fit: cover;
+        aspect-ratio: 1/1;
     }
 
     @keyframes float {
@@ -198,7 +205,9 @@
             </div>
 
             <div class="col-lg-6 text-center mt-5 mt-lg-0">
-                <div class="hero-emoji">🍔</div>
+                <div class="hero-img-wrap">
+                    <img src="/media/food_images/hero_burger.png" alt="Delicious Burger">
+                </div>
             </div>
         </div>
     </div>
