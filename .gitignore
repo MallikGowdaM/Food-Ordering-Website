@@ -11,7 +11,11 @@ __pycache__/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+# Track food_images (seed images) but ignore user uploads
 media/
+!media/food_images/
+!media/food_images/*.png
+!media/food_images/*.jpg
 
 # Virtual environments
 .env
