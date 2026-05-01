@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}My Cart – FoodieHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-wrap { padding: 2.5rem 0 4rem; }
+
+    .page-heading {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--secondary);
+    }
+
+    .cart-table {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        overflow: hidden;
+    }
+
+    .cart-table th {
+        background: linear-gradient(135deg, #1a1a2e, #0f3460);
+        color: rgba(255,255,255,0.85);
+        font-weight: 600;
+        font-size: 0.88rem;
+        letter-spacing: 0.5px;
+        padding: 1rem 1.2rem;
+        border: none;
+    }
+
+    .cart-table td {
+        padding: 1rem 1.2rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.95rem;
+    }
+
+    .cart-table tr:last-child td { border-bottom: none; }
+
+    .item-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        background: #fff5f0;
+    }
+
+    .item-emoji {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #fff5f0, #ffe8df);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+
+    .qty-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f8f8;
+        border-radius: 10px;
+        padding: 4px 8px;
+    }
+
+    .qty-btn {
+        background: white;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 7px;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 700;
+        color: var(--secondary);
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+
+    .qty-btn:hover { border-color: var(--primary); color: var(--primary); background: #fff5f0; }
+
+    .summary-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        padding: 1.8rem;
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-card h5 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.92rem;
+        margin-bottom: 0.6rem;
+        color: #555;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--secondary);
+        border-top: 2px solid #f0f0f0;
+        padding-top: 0.8rem;
+        margin-top: 0.8rem;
+    }
+
+    .btn-checkout {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        width: 100%;
+        color: white;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255,107,53,0.4);
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 5rem 1rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-wrap">
+    <div class="container">
+        <h1 class="page-heading mb-4">
+            <i class="bi bi-cart3 me-2" style="color: var(--primary);"></i>My Cart
+        </h1>
+
+        {% if cart_items %}
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="cart-table">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if item.food_item.image %}
+                                            <img src="{{ item.food_item.image.url }}" alt="{{ item.food_item.name }}" class="item-img">
+                                        {% else %}
+                                            <span class="item-emoji">
+                                                {% if item.food_item.category == 'starters' %}🥗
+                                                {% elif item.food_item.category == 'main_course' %}🍛
+                                                {% elif item.food_item.category == 'desserts' %}🍰
+                                                {% elif item.food_item.category == 'beverages' %}🥤
+                                                {% elif item.food_item.category == 'snacks' %}🍟
+                                                {% else %}🍽️{% endif %}
+                                            </span>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold">{{ item.food_item.name }}</div>
+                                            <div class="text-muted small">{{ item.food_item.get_category_display }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-semibold text-orange">₹{{ item.food_item.price }}</td>
+                                <td>
+                                    <div class="qty-control">
+                                        <!-- Decrease -->
+                                        <form method="post" action="{% url 'update_cart' item.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="decrease">
+                                            <button type="submit" class="qty-btn" title="Decrease">−</button>
+                                        </form>
+                                        <span class="fw-bold px-1">{{ item.quantity }}</span>
+                                        <!-- Increase -->
+                                        <form method="post" action="{% url 'update_cart' item.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="increase">
+                                            <button type="submit" class="qty-btn" title="Increase">+</button>
+                                        </form>
+                                    </div>
+                                </td>
+                                <td class="fw-bold">₹{{ item.subtotal }}</td>
+                                <td>
+                                    <form method="post" action="{% url 'update_cart' item.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="remove">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                style="border-radius: 8px;" title="Remove item"
+                                                onclick="return confirm('Remove this item?')">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'menu' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+                    </a>
+                    <form method="post" action="{% url 'clear_cart' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger"
+                                onclick="return confirm('Clear all items from cart?')"
+                                style="border-radius: 10px; font-weight: 600;">
+                            <i class="bi bi-trash3 me-1"></i>Clear Cart
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h5>🧾 Order Summary</h5>
+                    {% for item in cart_items %}
+                    <div class="summary-row">
+                        <span>{{ item.food_item.name }} × {{ item.quantity }}</span>
+                        <span>₹{{ item.subtotal }}</span>
+                    </div>
+                    {% endfor %}
+                    <div class="summary-row mt-2">
+                        <span>Delivery Fee</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span class="text-orange">₹{{ total }}</span>
+                    </div>
+                    <a href="{% url 'checkout' %}" class="btn btn-checkout">
+                        <i class="bi bi-bag-check me-2"></i>Proceed to Checkout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="empty-cart">
+            <div style="font-size: 5rem;">🛒</div>
+            <h4 class="mt-3 fw-bold">Your cart is empty</h4>
+            <p class="text-muted">Looks like you haven't added anything yet!</p>
+            <a href="{% url 'menu' %}" class="btn btn-primary btn-lg mt-2" style="border-radius: 12px;">
+                <i class="bi bi-grid me-2"></i>Browse Menu
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

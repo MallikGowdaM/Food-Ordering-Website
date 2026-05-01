@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout – FoodieHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .checkout-wrap { padding: 2.5rem 0 4rem; }
+
+    .page-heading {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .checkout-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        padding: 2rem;
+    }
+
+    .checkout-card h5 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--secondary);
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 0.75rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .form-label { font-weight: 600; font-size: 0.9rem; color: #444; }
+
+    .form-control {
+        border: 2px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 0.65rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+    }
+
+    .order-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.92rem;
+    }
+
+    .order-item-row:last-of-type { border-bottom: none; }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--secondary);
+        border-top: 2px solid #f0f0f0;
+        padding-top: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-place-order {
+        background: linear-gradient(135deg, #00b894, #00a381);
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        width: 100%;
+        color: white;
+        transition: all 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-place-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,184,148,0.4);
+    }
+
+    .secure-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #00b894;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-wrap">
+    <div class="container">
+        <h1 class="page-heading mb-4">
+            <i class="bi bi-bag-check me-2" style="color: var(--primary);"></i>Checkout
+        </h1>
+
+        <div class="row g-4">
+            <!-- Delivery Details Form -->
+            <div class="col-lg-7">
+                <div class="checkout-card">
+                    <h5><i class="bi bi-geo-alt me-2" style="color: var(--primary);"></i>Delivery Details</h5>
+
+                    <form method="post" id="checkout-form">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Delivery Address *</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <div class="text-danger small mt-1">{{ form.address.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number *</label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Special Instructions (optional)</label>
+                            {{ form.notes }}
+                        </div>
+
+                        <!-- Mobile: show summary before button -->
+                        <div class="d-lg-none mb-3">
+                            <div class="checkout-card p-3">
+                                <h6 class="fw-bold mb-2"><i class="bi bi-receipt me-1" style="color:var(--primary);"></i>Your Order</h6>
+                                {% for item in cart_items %}
+                                <div class="d-flex justify-content-between small py-1 border-bottom">
+                                    <span>{{ item.food_item.name }} × {{ item.quantity }}</span>
+                                    <span class="fw-bold">₹{{ item.subtotal }}</span>
+                                </div>
+                                {% endfor %}
+                                <div class="d-flex justify-content-between fw-bold mt-2 pt-1">
+                                    <span>Total</span>
+                                    <span class="text-orange">₹{{ total }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-place-order" id="place-order-btn">
+                            <i class="bi bi-check-circle me-2"></i>Place Order – ₹{{ total }}
+                        </button>
+                        <div class="secure-badge">
+                            <i class="bi bi-shield-check"></i> Secure Order • Free Delivery
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="checkout-card">
+                    <h5><i class="bi bi-receipt me-2" style="color: var(--primary);"></i>Your Order</h5>
+                    {% for item in cart_items %}
+                    <div class="order-item-row">
+                        <div>
+                            <span class="fw-semibold">{{ item.food_item.name }}</span>
+                            <span class="text-muted ms-2">× {{ item.quantity }}</span>
+                        </div>
+                        <span class="fw-bold">₹{{ item.subtotal }}</span>
+                    </div>
+                    {% endfor %}
+
+                    <div class="order-item-row">
+                        <span class="text-muted">Delivery Fee</span>
+                        <span class="text-success fw-bold">FREE</span>
+                    </div>
+
+                    <div class="summary-total">
+                        <span>Total</span>
+                        <span class="text-orange">₹{{ total }}</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'cart' %}" class="btn btn-outline-primary w-100 mt-3" style="border-radius: 12px;">
+                    <i class="bi bi-arrow-left me-1"></i>Edit Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('checkout-form').addEventListener('submit', function() {
+        const btn = document.getElementById('place-order-btn');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Placing Order...';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}

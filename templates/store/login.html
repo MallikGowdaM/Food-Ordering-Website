@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Login – FoodieHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-wrap {
+        min-height: calc(100vh - 130px);
+        display: flex;
+        align-items: center;
+        padding: 3rem 0;
+        background: linear-gradient(135deg, #fff8f5 0%, #ffe8df 100%);
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(255,107,53,0.15);
+        overflow: hidden;
+        max-width: 450px;
+        width: 100%;
+        margin: auto;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .auth-header h2 {
+        font-family: 'Playfair Display', serif;
+        color: #fdcb6e;
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .auth-header p { color: rgba(255,255,255,0.7); margin: 0.5rem 0 0; }
+
+    .auth-body { padding: 2rem 2.5rem 2.5rem; }
+
+    .form-label { font-weight: 600; font-size: 0.9rem; color: #444; margin-bottom: 0.3rem; }
+
+    .form-control {
+        border: 2px solid #e8e8e8;
+        border-radius: 10px;
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+    }
+
+    .btn-auth {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border: none;
+        border-radius: 12px;
+        padding: 0.8rem;
+        font-weight: 700;
+        font-size: 1rem;
+        width: 100%;
+        color: white;
+        transition: all 0.2s;
+    }
+
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255,107,53,0.4);
+    }
+
+    .errorlist { list-style: none; padding: 0; color: #d63031; font-size: 0.83rem; margin-top: 0.3rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="container">
+        <div class="auth-card mx-auto">
+            <div class="auth-header">
+                <div style="font-size: 3rem;">👋</div>
+                <h2>Welcome Back!</h2>
+                <p>Login to continue ordering</p>
+            </div>
+
+            <div class="auth-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border-radius: 10px 0 0 10px; border: 2px solid #e8e8e8; border-right: none; background: #f8f8f8;">
+                                <i class="bi bi-person text-muted"></i>
+                            </span>
+                            <input type="text" name="username" id="id_username"
+                                   class="form-control" placeholder="Enter your username"
+                                   style="border-radius: 0 10px 10px 0; border-left: none;"
+                                   autofocus required>
+                        </div>
+                        {% if form.username.errors %}<ul class="errorlist">{% for e in form.username.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="border-radius: 10px 0 0 10px; border: 2px solid #e8e8e8; border-right: none; background: #f8f8f8;">
+                                <i class="bi bi-lock text-muted"></i>
+                            </span>
+                            <input type="password" name="password" id="id_password"
+                                   class="form-control" placeholder="Enter your password"
+                                   style="border-radius: 0 10px 10px 0; border-left: none;"
+                                   required>
+                        </div>
+                        {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-auth mt-2">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </button>
+                </form>
+
+                <hr class="my-3">
+                <p class="text-center mb-0 text-muted" style="font-size: 0.9rem;">
+                    New here?
+                    <a href="{% url 'register' %}" style="color: var(--primary); font-weight: 600;">Create an account</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
