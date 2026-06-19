@@ -22,7 +22,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
     'store',
@@ -93,26 +92,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Cloudinary cloud storage for media files (works on Vercel's read-only filesystem)
-# Set env var so django-cloudinary-storage auto-configures
-os.environ.setdefault('CLOUDINARY_URL', 'cloudinary://244943428161653:15SbTvGfJ85gNiEGoolfYMs4GS4@dejers5zz')
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dejers5zz',
-    'API_KEY': '244943428161653',
-    'API_SECRET': '15SbTvGfJ85gNiEGoolfYMs4GS4',
-}
-
-import cloudinary
-cloudinary.config(
-    cloud_name='dejers5zz',
-    api_key='244943428161653',
-    api_secret='15SbTvGfJ85gNiEGoolfYMs4GS4',
-)
-
+# Custom Cloudinary storage backend (Django 6.0 compatible)
 STORAGES = {
     'default': {
-        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage',
+        'BACKEND': 'foodorder.cloudinary_backend.CloudinaryStorage',
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
