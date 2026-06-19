@@ -50,7 +50,7 @@ class FoodItemAdmin(admin.ModelAdmin):
     def image_preview(self, obj):
         if obj.image:
             return format_html('<img src="{}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;" />', obj.image.url)
-        return format_html('<span style="color:#ccc;">No Image</span>')
+        return mark_safe('<span style="color:#ccc;">No Image</span>')
     image_preview.short_description = '📷 Photo'
 
     def image_preview_large(self, obj):
@@ -66,8 +66,8 @@ class FoodItemAdmin(admin.ModelAdmin):
 
     def availability_badge(self, obj):
         if obj.is_available:
-            return format_html('<span style="background:#28a745;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">✅ Available</span>')
-        return format_html('<span style="background:#dc3545;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">❌ Unavailable</span>')
+            return mark_safe('<span style="background:#28a745;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">✅ Available</span>')
+        return mark_safe('<span style="background:#dc3545;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">❌ Unavailable</span>')
     availability_badge.short_description = 'Status'
 
 
@@ -134,7 +134,7 @@ class OrderAdmin(admin.ModelAdmin):
     def payment_badge(self, obj):
         if obj.payment_status:
             return format_html('<span style="background:#28a745;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">✅ Paid ({})</span>', obj.payment_method or 'N/A')
-        return format_html('<span style="background:#dc3545;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">⏳ Unpaid</span>')
+        return mark_safe('<span style="background:#dc3545;color:white;padding:3px 10px;border-radius:20px;font-size:12px;">⏳ Unpaid</span>')
     payment_badge.short_description = '💳 Payment'
 
 
