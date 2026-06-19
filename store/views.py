@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+import django.shortcuts
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -17,7 +17,7 @@ from .forms import RegisterForm, PlaceOrderForm
 def home(request):
     """Landing page with featured food items."""
     featured_items = FoodItem.objects.filter(is_available=True)[:8]
-    return render(request, 'store/home.html', {'featured_items': featured_items})
+    return django.shortcuts.render(request, 'store/home.html', {'featured_items': featured_items})
 
 
 def menu(request):
@@ -28,7 +28,7 @@ def menu(request):
         items = items.filter(category=category_filter)
 
     categories = FoodItem.CATEGORY_CHOICES
-    return render(request, 'store/menu.html', {
+    return django.shortcuts.render(request, 'store/menu.html', {
         'food_items': items,
         'categories': categories,
         'selected_category': category_filter,
@@ -42,7 +42,7 @@ def menu(request):
 def register_view(request):
     """User registration page."""
     if request.user.is_authenticated:
-        return redirect('menu')
+        return django.shortcuts.redirect('menu')
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -50,19 +50,19 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, f'Welcome, {user.first_name}! Your account has been created.')
-            return redirect('menu')
+            return django.shortcuts.redirect('menu')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = RegisterForm()
 
-    return render(request, 'store/register.html', {'form': form})
+    return django.shortcuts.render(request, 'store/register.html', {'form': form})
 
 
 def login_view(request):
     """User login page."""
     if request.user.is_authenticated:
-        return redirect('menu')
+        return django.shortcuts.redirect('menu')
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -71,20 +71,20 @@ def login_view(request):
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')
             next_url = request.GET.get('next', 'menu')
-            return redirect(next_url)
+            return django.shortcuts.redirect(next_url)
         else:
             messages.error(request, 'Invalid username or password.')
     else:
         form = AuthenticationForm()
 
-    return render(request, 'store/login.html', {'form': form})
+    return django.shortcuts.render(request, 'store/login.html', {'form': form})
 
 
 def logout_view(request):
     """Logout and redirect to home."""
     logout(request)
     messages.info(request, 'You have been logged out.')
-    return redirect('home')
+    return django.shortcuts.redirect('home')
 
 
 # ─────────────────────────────────────────
@@ -96,7 +96,7 @@ def cart_view(request):
     """View the current user's cart."""
     cart_items = Cart.objects.filter(user=request.user).select_related('food_item')
     total = sum(item.subtotal for item in cart_items)
-    return render(request, 'store/cart.html', {
+    return django.shortcuts.render(request, 'store/cart.html', {
         'cart_items': cart_items,
         'total': total,
     })
@@ -105,7 +105,7 @@ def cart_view(request):
 @login_required
 def add_to_cart(request, food_id):
     """Add a food item to the cart or increment quantity."""
-    food_item = get_object_or_404(FoodItem, id=food_id, is_available=True)
+    food_item = django.shortcuts.get_object_or_404(FoodItem, id=food_id, is_available=True)
     cart_item, created = Cart.objects.get_or_create(
         user=request.user,
         food_item=food_item,
@@ -120,13 +120,13 @@ def add_to_cart(request, food_id):
 
     # Redirect back to the referring page (menu or home)
     next_url = request.META.get('HTTP_REFERER', 'menu')
-    return redirect(next_url)
+    return django.shortcuts.redirect(next_url)
 
 
 @login_required
 def update_cart(request, cart_id):
     """Update quantity or remove an item from the cart."""
-    cart_item = get_object_or_404(Cart, id=cart_id, user=request.user)
+    cart_item = django.shortcuts.get_object_or_404(Cart, id=cart_id, user=request.user)
     action = request.POST.get('action')
 
     if action == 'increase':
@@ -143,7 +143,7 @@ def update_cart(request, cart_id):
         cart_item.delete()
         messages.info(request, f'{cart_item.food_item.name} removed from cart.')
 
-    return redirect('cart')
+    return django.shortcuts.redirect('cart')
 
 
 @login_required
@@ -151,7 +151,7 @@ def clear_cart(request):
     """Remove all items from the cart."""
     Cart.objects.filter(user=request.user).delete()
     messages.info(request, 'Your cart has been cleared.')
-    return redirect('cart')
+    return django.shortcuts.redirect('cart')
 
 
 # ─────────────────────────────────────────
@@ -165,7 +165,7 @@ def checkout_view(request):
 
     if not cart_items.exists():
         messages.warning(request, 'Your cart is empty. Add some food items first!')
-        return redirect('menu')
+        return django.shortcuts.redirect('menu')
 
     total = sum(item.subtotal for item in cart_items)
 
@@ -193,14 +193,13 @@ def checkout_view(request):
                 # Clear the cart
                 cart_items.delete()
 
-            messages.success(request, f'🎉 Order #{order.id} placed successfully! We\'ll deliver soon.')
-            return redirect('order_detail', order_id=order.id)
+            return django.shortcuts.redirect('payment', order_id=order.id)
         else:
             messages.error(request, 'Please fill in all required fields.')
     else:
         form = PlaceOrderForm()
 
-    return render(request, 'store/checkout.html', {
+    return django.shortcuts.render(request, 'store/checkout.html', {
         'cart_items': cart_items,
         'total': total,
         'form': form,
@@ -208,14 +207,39 @@ def checkout_view(request):
 
 
 @login_required
+def payment_view(request, order_id):
+    """Simulated payment gateway page."""
+    order = django.shortcuts.get_object_or_404(Order, id=order_id, user=request.user)
+    if order.payment_status:
+        messages.info(request, "This order has already been paid for.")
+        return django.shortcuts.redirect('order_detail', order_id=order.id)
+    return django.shortcuts.render(request, 'store/payment.html', {'order': order})
+
+
+@login_required
+def process_payment(request, order_id):
+    """Process the simulated payment."""
+    order = django.shortcuts.get_object_or_404(Order, id=order_id, user=request.user)
+    if request.method == 'POST':
+        payment_method = request.POST.get('payment_method', 'Unknown')
+        order.payment_method = payment_method
+        order.payment_status = True
+        order.status = 'confirmed'
+        order.save()
+        messages.success(request, f'🎉 Payment successful via {payment_method}! Order #{order.id} is confirmed. We\'ll deliver soon.')
+        return django.shortcuts.redirect('order_detail', order_id=order.id)
+    return django.shortcuts.redirect('payment', order_id=order.id)
+
+
+@login_required
 def order_history(request):
     """View all past orders for the current user."""
     orders = Order.objects.filter(user=request.user).prefetch_related('items')
-    return render(request, 'store/order_history.html', {'orders': orders})
+    return django.shortcuts.render(request, 'store/order_history.html', {'orders': orders})
 
 
 @login_required
 def order_detail(request, order_id):
     """View details of a specific order."""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
-    return render(request, 'store/order_detail.html', {'order': order})
+    order = django.shortcuts.get_object_or_404(Order, id=order_id, user=request.user)
+    return django.shortcuts.render(request, 'store/order_detail.html', {'order': order})

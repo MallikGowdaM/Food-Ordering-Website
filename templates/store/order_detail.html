@@ -3,6 +3,7 @@
 {% block title %}Order #{{ order.id }} – FoodieHub{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
     .detail-wrap { padding: 2.5rem 0 4rem; }
 
@@ -96,6 +97,15 @@
 
     .grand-total span:first-child { font-weight: 700; font-size: 1rem; color: #555; }
     .grand-total span:last-child { font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+
+    #delivery-map {
+        height: 300px;
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 1rem;
+        border: 2px solid #e8e8e8;
+        z-index: 1;
+    }
 </style>
 {% endblock %}
 
@@ -142,14 +152,22 @@
                         <p>{{ order.phone }}</p>
                     </div>
                     <div class="info-box">
-                        <label><i class="bi bi-calendar me-1"></i>Last Updated</label>
-                        <p>{{ order.updated_at|date:"d M Y, h:i A" }}</p>
+                        <label><i class="bi bi-wallet2 me-1"></i>Payment</label>
+                        <p>
+                            {{ order.payment_method|default:"Pending" }}
+                            {% if order.payment_status %}<span class="badge bg-success ms-1">Paid</span>{% endif %}
+                        </p>
                     </div>
                 </div>
 
                 <div class="info-box mb-4">
                     <label><i class="bi bi-geo-alt me-1"></i>Delivery Address</label>
                     <p>{{ order.address }}</p>
+
+                    {% if order.status != 'cancelled' and order.status != 'delivered' and order.payment_status %}
+                    <label class="mt-4"><i class="bi bi-geo me-1"></i>Live Tracking</label>
+                    <div id="delivery-map"></div>
+                    {% endif %}
                 </div>
 
                 {% if order.notes %}
@@ -202,4 +220,46 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const mapEl = document.getElementById('delivery-map');
+        if (mapEl) {
+            // Simulated coordinates: Restaurant and User
+            const restaurantLoc = [12.9716, 77.5946]; // Bangalore center
+            const userLoc = [12.9352, 77.6245];       // Koramangala
+            
+            const map = L.map('delivery-map').setView(restaurantLoc, 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18,
+            }).addTo(map);
+            
+            const restIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/3170/3170733.png',
+                iconSize: [38, 38],
+                iconAnchor: [19, 38]
+            });
+            
+            const userIcon = L.icon({
+                iconUrl: 'https://cdn-icons-png.flaticon.com/512/1946/1946488.png',
+                iconSize: [38, 38],
+                iconAnchor: [19, 38]
+            });
+            
+            L.marker(restaurantLoc, {icon: restIcon}).addTo(map).bindPopup('FoodieHub Restaurant');
+            L.marker(userLoc, {icon: userIcon}).addTo(map).bindPopup('Your Delivery Address');
+            
+            // Draw a line connecting them
+            const latlngs = [restaurantLoc, userLoc];
+            const polyline = L.polyline(latlngs, {color: '#00b894', weight: 4, dashArray: '5, 10'}).addTo(map);
+            
+            map.fitBounds(polyline.getBounds(), {padding: [30, 30]});
+        }
+    });
+</script>
 {% endblock %}

@@ -59,6 +59,8 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=50, blank=True)
+    payment_status = models.BooleanField(default=False)
     address = models.TextField()
     phone = models.CharField(max_length=15)
     notes = models.TextField(blank=True)

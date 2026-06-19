@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Gateway – FoodieHub{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-wrap { padding: 2.5rem 0 4rem; }
+    
+    .page-heading {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    .payment-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .payment-option {
+        border: 2px solid #e8e8e8;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .payment-option:hover {
+        border-color: #00b894;
+        background: rgba(0, 184, 148, 0.05);
+    }
+    
+    .payment-option.selected {
+        border-color: #00b894;
+        background: rgba(0, 184, 148, 0.1);
+    }
+    
+    .payment-icon {
+        font-size: 1.8rem;
+        color: #555;
+    }
+    
+    .payment-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #333;
+    }
+    
+    .btn-pay {
+        background: linear-gradient(135deg, #00b894, #00a381);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        font-weight: 700;
+        font-size: 1.2rem;
+        width: 100%;
+        color: white;
+        transition: all 0.2s;
+        margin-top: 1.5rem;
+    }
+    
+    .btn-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,184,148,0.4);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-wrap">
+    <div class="container">
+        <h1 class="page-heading mb-2">Secure Checkout</h1>
+        <p class="text-center text-muted mb-4">Select a payment method to complete your order.</p>
+
+        <div class="payment-card">
+            <h5 class="fw-bold mb-4 border-bottom pb-3 text-center">
+                Amount to Pay: <span class="text-orange ms-2">₹{{ order.total_price }}</span>
+            </h5>
+            
+            <form method="post" action="{% url 'process_payment' order.id %}" id="payment-form">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" id="selected_method" value="GPay">
+                
+                <div class="payment-option selected" onclick="selectMethod('GPay', this)">
+                    <i class="bi bi-google payment-icon text-primary"></i>
+                    <div class="payment-name">Google Pay (GPay)</div>
+                </div>
+                
+                <div class="payment-option" onclick="selectMethod('PhonePe', this)">
+                    <i class="bi bi-phone payment-icon text-info"></i>
+                    <div class="payment-name">PhonePe</div>
+                </div>
+                
+                <div class="payment-option" onclick="selectMethod('Paytm', this)">
+                    <i class="bi bi-wallet2 payment-icon text-primary"></i>
+                    <div class="payment-name">Paytm</div>
+                </div>
+                
+                <div class="payment-option" onclick="selectMethod('Credit/Debit Card', this)">
+                    <i class="bi bi-credit-card payment-icon text-secondary"></i>
+                    <div class="payment-name">Credit / Debit Card</div>
+                </div>
+                
+                <div class="payment-option" onclick="selectMethod('Net Banking', this)">
+                    <i class="bi bi-bank payment-icon text-success"></i>
+                    <div class="payment-name">Net Banking</div>
+                </div>
+                
+                <div class="payment-option" onclick="selectMethod('Other UPI', this)">
+                    <i class="bi bi-qr-code-scan payment-icon text-dark"></i>
+                    <div class="payment-name">Other UPI Apps</div>
+                </div>
+                
+                <button type="submit" class="btn btn-pay" id="pay-btn">
+                    Pay ₹{{ order.total_price }} Securely
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectMethod(method, element) {
+        document.getElementById('selected_method').value = method;
+        
+        // Remove selected class from all
+        const options = document.querySelectorAll('.payment-option');
+        options.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selected class to clicked
+        element.classList.add('selected');
+    }
+    
+    document.getElementById('payment-form').addEventListener('submit', function() {
+        const btn = document.getElementById('pay-btn');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Payment...';
+        btn.disabled = true;
+    });
+</script>
+{% endblock %}
