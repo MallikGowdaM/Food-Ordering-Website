@@ -16,6 +16,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -95,3 +96,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/menu/'
 LOGOUT_REDIRECT_URL = '/'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "FoodieHub Admin",
+    "site_header": "FoodieHub",
+    "site_brand": "FoodieHub Dashboard",
+    "welcome_sign": "Welcome to the FoodieHub Admin Dashboard",
+    "copyright": "FoodieHub",
+    "search_model": ["auth.User", "store.FoodItem", "store.Order"],
+    "show_ui_builder": False,
+    "topmenu_links": [
+        {"name": "Home",  "url": "admin:index"},
+        {"name": "View Live Site", "url": "/", "new_window": True},
+    ],
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "pulse",
+    "dark_mode_theme": "darkly",
+}
