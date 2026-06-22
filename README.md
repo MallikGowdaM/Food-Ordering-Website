@@ -35,9 +35,9 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/** in your browser.
+Open **https://vercel.com/mallik-gowda-ms-projects/food-ordering-website** in your browser.
 
-Admin panel: **http://127.0.0.1:8000/admin/**
+Admin panel: **https://vercel.com/mallik-gowda-ms-projects/food-ordering-website/admin/**
 
 ## Pages
 
