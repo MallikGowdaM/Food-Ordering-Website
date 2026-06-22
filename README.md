@@ -35,7 +35,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Open **https://vercel.com/mallik-gowda-ms-projects/food-ordering-website** in your browser.
+Open **https://food-ordering-website-psi-jet.vercel.app/** in your browser.
 
 Admin panel: **https://vercel.com/mallik-gowda-ms-projects/food-ordering-website/admin/**
 
